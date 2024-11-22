@@ -1,13 +1,18 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-// public class TroopData
-// {
-//     public UnitType UnitType { get; set; }
-//     public Vector3 Position { get; set; }
-//     public Vector3 Forward { get; set; }
-// }
-
-public class UnitData
+public struct FormationData
 {
+    public Vector2 Position { get; set; }
+    public Vector2 Forward { get; set; }
+    public List<Vector2> Points { get; set; }
 }
+
+public enum FormationType
+{
+    Line,
+    Circle,
+    Wedge,
+    Loose
+}
+

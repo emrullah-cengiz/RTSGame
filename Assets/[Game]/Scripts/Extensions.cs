@@ -18,4 +18,11 @@ public static class Extensions
         pos.y = Screen.height - pos.y;
         return pos;
     }
+    
+    public static Vector2 GetRight(this Vector2 direction)
+    {
+        float newX = direction.y;
+        float newY = -direction.x;
+        return new Vector2(newX, newY);
+    }
 }

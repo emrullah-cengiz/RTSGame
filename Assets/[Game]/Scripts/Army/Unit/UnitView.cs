@@ -6,7 +6,7 @@ using Sirenix.Utilities;
 using UnityEngine;
 using UnityEngine.AI;
 
-public class SoldierView : SerializedMonoBehaviour
+public class UnitView : SerializedMonoBehaviour
 {
     [OdinSerialize, NonSerialized] private Dictionary<SkinPartType, SpriteRenderer> _skinParts;
     [SerializeField] private SpriteRenderer _selectionHighlight;
@@ -17,33 +17,56 @@ public class SoldierView : SerializedMonoBehaviour
     [SerializeField] private GameSettings _gameSettings;
 
     private float _xScale;
+    private SkinDirection _lastSkinDirection;
+    private Vector3 _lastVelocity;
+    private bool _skinAdjustmentForStopFlag;
+    private Vector2 _formationFwd;
 
     private void Start()
     {
+        _skinAdjustmentForStopFlag = true;
+
         _agent = GetComponentInParent<NavMeshAgent>();
         _xScale = transform.localScale.x;
     }
 
     private void Update()
     {
-        UpdateSkin();
+        if (!_agent.isStopped && !_lastVelocity.Equals(_agent.velocity))
+        {
+            AdjustSkin(_agent.velocity);
+            _skinAdjustmentForStopFlag = false;
+        }
+        else if (!_skinAdjustmentForStopFlag)
+        {
+            AdjustSkin(_formationFwd);
+            _skinAdjustmentForStopFlag = true;
+        }
+
+        _lastVelocity = _agent.velocity;
     }
 
-    void UpdateSkin()
+    void AdjustSkin(Vector3 direction)
     {
         if (_agent.velocity == Vector3.zero) return;
 
-        var absX = Mathf.Abs(_agent.velocity.x);
-        var absY = Mathf.Abs(_agent.velocity.y);
+        var absX = Mathf.Abs(direction.x);
+        var absY = Mathf.Abs(direction.y);
 
         var total = absX + absY;
         var percentageX = absX / total;
         var percentageY = absY / total;
 
-        ChangeVisualDirection(
-            (percentageY > percentageX)
-                ? _agent.velocity.y > 0 ? SkinDirection.Back : SkinDirection.Front
-                : SkinDirection.Side);
+        var dir = (percentageY > percentageX)
+            ? _agent.velocity.y > 0 ? SkinDirection.Back : SkinDirection.Front
+            : SkinDirection.Side;
+
+        if (dir.Equals(_lastSkinDirection))
+            return;
+
+        _lastSkinDirection = dir;
+
+        ChangeVisualDirection(dir);
 
         var scale = transform.localScale;
         scale.x = _xScale * (_agent.velocity.x > 0 ? 1 : -1);
@@ -55,6 +78,9 @@ public class SoldierView : SerializedMonoBehaviour
         foreach (var skinPart in _skinParts)
             skinPart.Value.sprite = _gameSettings.SoldierViewSettings.Sprites[(int)direction, (int)skinPart.Key];
     }
+
+    public void SetFormationForward(Vector3 fwd) => _formationFwd = fwd;
+
 
     public void SetSelected(bool s) => _selectionHighlight.gameObject.SetActive(s);
 

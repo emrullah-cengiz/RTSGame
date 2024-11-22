@@ -3,15 +3,15 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
-public class Soldier : MonoBehaviour
+public class Unit : TransformObject
 {
-    public SoldierView View;
+    public UnitView View;
     private NavMeshAgent _agent;
 
     private void Start()
     {
         _agent = GetComponent<NavMeshAgent>();
-        View = GetComponentInChildren<SoldierView>();
+        View = GetComponentInChildren<UnitView>();
 
         _agent.updateRotation = false;
         _agent.updateUpAxis = false;
@@ -19,4 +19,5 @@ public class Soldier : MonoBehaviour
 
 
     public void SetDestination(Vector3 pos) => _agent.SetDestination(pos);
+
 }

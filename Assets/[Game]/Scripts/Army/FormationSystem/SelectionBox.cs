@@ -3,14 +3,16 @@ using UnityEngine;
 
 public class SelectionBox : MonoBehaviour
 {
+    public bool IsActive { get; set; }
+    
     [SerializeField] private float _borderThickness = 2f;
     [SerializeField] private Color _fillColor = Color.white,
                                    _borderColor = Color.white;
 
 
-    public Action<Rect> OnUnitsSelectionCompleted;
+    public Action<Rect> OnUnitsSelectionEnd;
 
-    private ArmyController _armyController;
+    private ArmyManager _armyController;
 
     private Rect _rect;
     private Vector3 _startPosition;
@@ -19,13 +21,12 @@ public class SelectionBox : MonoBehaviour
 
     private void Awake()
     {
-        _armyController = GetComponent<ArmyController>();
+        _armyController = GetComponent<ArmyManager>();
     }
 
     void Update()
     {
-        if (_armyController.State != ArmyControllerState.Default && 
-            _armyController.State != ArmyControllerState.UnitsSelected)
+        if (!IsActive)
             return;
 
         if (Input.GetMouseButtonDown(0))
@@ -36,7 +37,7 @@ public class SelectionBox : MonoBehaviour
         if (Input.GetMouseButtonUp(0))
         {
             _isSelecting = false;
-            OnUnitsSelectionCompleted?.Invoke(_rect);
+            OnUnitsSelectionEnd?.Invoke(_rect);
         }
         
         if (!_isSelecting) return;
