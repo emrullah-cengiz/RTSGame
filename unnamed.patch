@@ -1,0 +1,130 @@
+Index: Assets/[Game]/Scripts/Player/PlayerOrderController.cs
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/Assets/[Game]/Scripts/Player/PlayerOrderController.cs b/Assets/[Game]/Scripts/Player/PlayerOrderController.cs
+--- a/Assets/[Game]/Scripts/Player/PlayerOrderController.cs	
++++ b/Assets/[Game]/Scripts/Player/PlayerOrderController.cs	(date 1732477280680)
+@@ -15,7 +15,8 @@
+ 
+     public PlayerOrderController()
+     {
+-        //TODO: DI Resolve (for auto injection)
++        //TODO: DI Resolve
++        
+         var playerFormationController = Object.FindFirstObjectByType<PlayerFormationController>();
+         _formationDrawer = Object.FindFirstObjectByType<FormationDrawer>();
+         _formationBuilder = new FormationBuilder();
+@@ -23,20 +24,17 @@
+         _orderTypeMapping = new Dictionary<Type, IPlayerOrder>
+         {
+             { typeof(TroopSelection_PlayerOrder), new TroopSelection_PlayerOrder(playerFormationController) },
+-            { typeof(MoveToDestination_PlayerOrder), new MoveToDestination_PlayerOrder(playerFormationController, _formationBuilder) },
+         };
+ 
+         _orderInteractionMapping = new()
+         {
+             ///TODO: DI Resolve
+             { (InteractableType.Unit, PointerInteractionType.LeftDown), typeof(TroopSelection_PlayerOrder)},
+-            { (InteractableType.Map, PointerInteractionType.RightDown),  typeof(MoveToDestination_PlayerOrder)},
+             // { (InteractableType.Unit, PointerInteractionType.RightDown), new AttackCommand() },
+             // { (InteractableType.HidingPlace, PointerInteractionType.RightDown), new HideCommand() },
+         };
+ 
+         Event.OnMouseInteraction += OnMouseInteraction;
+-        _formationDrawer.OnFormationDrawEnd += OnFormationDrawEnd;
+     }
+ 
+     private void OnMouseInteraction(IInteractable interactable, PointerInteractionType type, PointerEventData pointerEventData)
+@@ -47,10 +45,10 @@
+         }
+     }
+ 
+-    private void OnFormationDrawEnd(bool s, List<FormationData> formations)
+-    {
+-        ((MoveToDestination_PlayerOrder)_orderTypeMapping[typeof(MoveToDestination_PlayerOrder)]).Execute(formations);
+-    }
++    // private void OnFormationDrawEnd(bool s, List<FormationData> formations)
++    // {
++    //     ((MoveToDestination_PlayerOrder)_orderTypeMapping[typeof(MoveToDestination_PlayerOrder)]).Execute(formations);
++    // }
+ }
+ 
+ public interface IPlayerOrder
+@@ -83,36 +81,7 @@
+     }
+ }
+ 
+-public readonly struct MoveToDestination_PlayerOrder : IPlayerOrder
+-{
+-    private readonly PlayerFormationController _playerFormationController;
+-    private readonly FormationBuilder _formationBuilder;
+-
+-    public MoveToDestination_PlayerOrder(PlayerFormationController formationController, FormationBuilder formationBuilder)
+-    {
+-        _playerFormationController = formationController;
+-        _formationBuilder = formationBuilder;
+-    }
+-
+-    public void Execute(IInteractable obj, PointerEventData pointerEventData)
+-    {
+-        var formations = _formationBuilder.Build(_playerFormationController.SelectedTroops, pointerEventData.position);
+-
+-        SetFormationsToTroops(formations);
+-    }
+ 
+-    public void Execute(List<FormationData> formations) => SetFormationsToTroops(formations);
+-
+-    private void SetFormationsToTroops(IEnumerable<FormationData> formations)
+-    {
+-        var i = 0;
+-        foreach (var formation in formations)
+-        {
+-            _playerFormationController.SelectedTroops[i].SetFormation(formation);
+-            i++;
+-        }
+-    }
+-}
+ 
+ 
+ [System.Flags]
+@@ -151,4 +120,35 @@
+     Map,
+     HidingPlace,
+     //..
+-}
+\ No newline at end of file
++}
++//
++// public readonly struct MoveToDestination_PlayerOrder : IPlayerOrder
++// {
++//     private readonly PlayerFormationController _playerFormationController;
++//     private readonly FormationBuilder _formationBuilder;
++//
++//     public MoveToDestination_PlayerOrder(PlayerFormationController formationController, FormationBuilder formationBuilder)
++//     {
++//         _playerFormationController = formationController;
++//         _formationBuilder = formationBuilder;
++//     }
++//
++//     public void Execute(IInteractable obj, PointerEventData pointerEventData)
++//     {
++//         var formations = _formationBuilder.Build(_playerFormationController.SelectedTroops, pointerEventData.position);
++//
++//         SetFormationsToTroops(formations);
++//     }
++//
++//     public void Execute(List<FormationData> formations) => SetFormationsToTroops(formations);
++//
++//     private void SetFormationsToTroops(IEnumerable<FormationData> formations)
++//     {
++//         var i = 0;
++//         foreach (var formation in formations)
++//         {
++//             _playerFormationController.SelectedTroops[i].SetFormation(formation);
++//             i++;
++//         }
++//     }
++// }
+\ No newline at end of file

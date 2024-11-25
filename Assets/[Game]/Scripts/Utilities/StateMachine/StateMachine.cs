@@ -28,6 +28,8 @@ namespace GAME.Utilities.StateMachine
 
     public class StateMachine<TStateEnum> where TStateEnum : Enum
     {
+        public TStateEnum CurrentState { get; private set; }
+        
         private TStateEnum _startState;
         private IState _currentState;
         private Dictionary<TStateEnum, IState> _states = new();
@@ -43,6 +45,7 @@ namespace GAME.Utilities.StateMachine
 
             if (_states.TryGetValue(newState, out var state))
             {
+                CurrentState = newState;
                 _currentState = state;
                 _currentState.OnEnter(@params);
             }

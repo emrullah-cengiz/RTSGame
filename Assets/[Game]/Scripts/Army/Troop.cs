@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Troop : MonoBehaviour
+public class Troop : CommandableActorBase
 {
     [SerializeField] private List<Unit> _units;
 
@@ -22,14 +22,15 @@ public class Troop : MonoBehaviour
         {
             Position = transform.position
         };
+
+        foreach (var unit in Units) 
+            unit.SetTroop(this);
     }
 
     public void SetSelected(bool b)
     {
-        foreach (var unit in Units)
-        {
+        foreach (var unit in Units) 
             unit.View.SetSelected(b);
-        }
     }
 
     public void SetFormation(FormationData formation)

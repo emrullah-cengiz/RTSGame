@@ -4,20 +4,15 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public enum ArmyControllerState
-{
-    Default,
-    UnitsSelected,
-    FormationDrawing,
-}
-
 public class ArmyManager : MonoBehaviour
 {
-    private FormationController _formationController;
+    private PlayerOrderController _playerOrderController;
+    private PlayerFormationController _formationController;
     public List<Troop> Troops;
     
     private void Awake()
     {
-        _formationController = GetComponent<FormationController>();
+        _playerOrderController = new PlayerOrderController();
+        _formationController = GetComponent<PlayerFormationController>();
     }
 }

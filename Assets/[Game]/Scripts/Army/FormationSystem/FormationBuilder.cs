@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using NUnit.Framework;
 using UnityEngine;
 
@@ -8,6 +9,17 @@ public class FormationBuilder
     private float _minUnitDistance = .2f;
     private float _formationDistance = .25f;
     private int _minFormationX = 2;
+    private Vector2 _defaultWorldDirection = new Vector2(.57f, .82f);
+
+    public FormationData Build(Troop troop, Vector2 startPos, Vector2? forward = null)
+    {
+        return Build(startPos, troop.FormationData.FormationWidth, troop.Units.Count, forward ?? _defaultWorldDirection);
+    }
+
+    public IEnumerable<FormationData> Build(List<Troop> troops, Vector2 startPos, Vector2? forward = null)
+    {
+        return troops.Select(troop => Build(startPos, troop.FormationData.FormationWidth, troop.Units.Count, forward ?? _defaultWorldDirection));
+    }
 
     public List<FormationData> Build(Vector2 startPos, Vector2 endPos, List<int> troopSizes)
     {
@@ -17,21 +29,26 @@ public class FormationBuilder
 
         var totalLength = distance.magnitude;
 
-        var forward = new Vector2(distance.y, distance.x).normalized;
+        //rotate vector 90 degrees to left
+        var forward = new Vector2(-distance.y, distance.x).normalized;
         var right = distance.normalized;
+
+        
+        var testDir = distance.normalized;
+        Debug.DrawRay(startPos, testDir, Color.blue);
+        Debug.DrawRay(startPos, new Vector2(-testDir.y, testDir.x), Color.red);
 
         if (distance == Vector2.zero)
         {
-            forward = new Vector2(.707f, .707f);
-            right = new Vector2(forward.x, -forward.y);
+            forward = _defaultWorldDirection;
+            //rotate vector 90 degrees to right
+            right = new Vector2(forward.y, -forward.x);
         }
 
         var formationWidth = Mathf.Max(totalLength / troopSizes.Count, _minUnitDistance * _minFormationX);
 
         for (var i = 0; i < troopSizes.Count; i++)
-        {
             res.Add(Build(startPos + (i * _formationDistance * right) + (i * formationWidth * right), formationWidth, troopSizes[i], forward));
-        }
 
         return res;
     }
@@ -44,8 +61,8 @@ public class FormationBuilder
         var yCount = troopSize / xCount;
         var remaining = troopSize % xCount;
 
-        var right = new Vector2(forward.y, forward.x);
-        var back = new Vector2(forward.x, -forward.y);
+        var right = new Vector2(forward.y, -forward.x);
+        var back = -forward;
 
         for (var y = 0; y < yCount; y++)
         for (var x = 0; x < xCount; x++)
@@ -60,9 +77,10 @@ public class FormationBuilder
         {
             Points = points,
             Forward = forward,
+            FormationWidth = formationWidth,
 
             //Center of formation
-            Position = Vector2.Lerp(startPos, startPos + right * formationWidth / 2 + 
+            Position = Vector2.Lerp(startPos, startPos + right * formationWidth / 2 +
                                               back * ((yCount + (remaining > 0 ? 1 : 0)) * _minUnitDistance / 2), 0.5f)
         };
     }
