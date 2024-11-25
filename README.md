@@ -1,5 +1,3 @@
 # RTSGame (Work In Progress!)
 
-
-
-![image](https://github.com/user-attachments/assets/56eb3046-cecc-46c0-9b47-4790fdbe463f)
+![RTSGame3](https://github.com/user-attachments/assets/82c8ee66-8a58-4cca-a1f7-04e8d004f8f1)
